@@ -1,0 +1,1 @@
+[16:48:10] INF: File 'Messages.json' not detected, successfully created![16:48:10] LOG: Console startup ready![16:48:10] INF: TCP server listening on [::]:1234

@@ -1,0 +1,14 @@
+C:\Users\dorek\RiderProjects\ProjektSem1\ProjektSem1\bin\Debug\net8.0\ProjektSem1.exe
+C:\Users\dorek\RiderProjects\ProjektSem1\ProjektSem1\bin\Debug\net8.0\ProjektSem1.deps.json
+C:\Users\dorek\RiderProjects\ProjektSem1\ProjektSem1\bin\Debug\net8.0\ProjektSem1.runtimeconfig.json
+C:\Users\dorek\RiderProjects\ProjektSem1\ProjektSem1\bin\Debug\net8.0\ProjektSem1.dll
+C:\Users\dorek\RiderProjects\ProjektSem1\ProjektSem1\bin\Debug\net8.0\ProjektSem1.pdb
+C:\Users\dorek\RiderProjects\ProjektSem1\ProjektSem1\obj\Debug\net8.0\ProjektSem1.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\dorek\RiderProjects\ProjektSem1\ProjektSem1\obj\Debug\net8.0\ProjektSem1.AssemblyInfoInputs.cache
+C:\Users\dorek\RiderProjects\ProjektSem1\ProjektSem1\obj\Debug\net8.0\ProjektSem1.AssemblyInfo.cs
+C:\Users\dorek\RiderProjects\ProjektSem1\ProjektSem1\obj\Debug\net8.0\ProjektSem1.csproj.CoreCompileInputs.cache
+C:\Users\dorek\RiderProjects\ProjektSem1\ProjektSem1\obj\Debug\net8.0\ProjektSem1.dll
+C:\Users\dorek\RiderProjects\ProjektSem1\ProjektSem1\obj\Debug\net8.0\refint\ProjektSem1.dll
+C:\Users\dorek\RiderProjects\ProjektSem1\ProjektSem1\obj\Debug\net8.0\ProjektSem1.pdb
+C:\Users\dorek\RiderProjects\ProjektSem1\ProjektSem1\obj\Debug\net8.0\ProjektSem1.genruntimeconfig.cache
+C:\Users\dorek\RiderProjects\ProjektSem1\ProjektSem1\obj\Debug\net8.0\ref\ProjektSem1.dll
