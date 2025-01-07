@@ -1,0 +1,1 @@
+[13:37:55] LOG: Console startup ready![13:37:55] INF: TCP server listening on [::]:1234[13:38:28] LOG: Console startup ready![13:38:28] INF: TCP server listening on [::]:1234[14:16:21] LOG: Console startup ready![14:16:23] LOG: Successfully generated cryptography keys![14:16:23] INF: TCP server listening on [::]:1234
