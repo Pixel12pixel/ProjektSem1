@@ -12,3 +12,4 @@ C:\Users\dorek\RiderProjects\ProjektSem1\ProjektSem1\obj\Debug\net8.0\refint\Pro
 C:\Users\dorek\RiderProjects\ProjektSem1\ProjektSem1\obj\Debug\net8.0\ProjektSem1.pdb
 C:\Users\dorek\RiderProjects\ProjektSem1\ProjektSem1\obj\Debug\net8.0\ProjektSem1.genruntimeconfig.cache
 C:\Users\dorek\RiderProjects\ProjektSem1\ProjektSem1\obj\Debug\net8.0\ref\ProjektSem1.dll
+C:\Users\dorek\RiderProjects\ProjektSem1\ProjektSem1\obj\Debug\net8.0\ProjektSem1.sourcelink.json

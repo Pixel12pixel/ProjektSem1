@@ -12,3 +12,4 @@ C:\Users\dorek\RiderProjects\ProjektSem1\Client\obj\Debug\net8.0\refint\Client.d
 C:\Users\dorek\RiderProjects\ProjektSem1\Client\obj\Debug\net8.0\Client.pdb
 C:\Users\dorek\RiderProjects\ProjektSem1\Client\obj\Debug\net8.0\Client.genruntimeconfig.cache
 C:\Users\dorek\RiderProjects\ProjektSem1\Client\obj\Debug\net8.0\ref\Client.dll
+C:\Users\dorek\RiderProjects\ProjektSem1\Client\obj\Debug\net8.0\Client.sourcelink.json
