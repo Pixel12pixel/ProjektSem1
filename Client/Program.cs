@@ -1,31 +1,29 @@
-﻿namespace Client;
+﻿using Client.Models;
+
+namespace Client;
 
 internal class Program
 {
-    static async Task Main()
+    static void Main()
     {
-        
         Console.MainSetup();
 
-        _ = log();
-
-        await Task.Delay(-1);
+        
     }
 
-    static async Task log()
+    private static void MainSetup()
     {
-        int it = 1;
-        while (it < 40)
+        var jsonFiles = new JsonFiles();
+
+        var config = jsonFiles.ReadConfig();
+
+        if (config.IsSet == false)
         {
-            await Task.Delay(500);
-
             
-        
-            Console.AddLine($"test {it}");
-
-            it++;
         }
-        
-
+        else
+        {
+            
+        }
     }
 }
