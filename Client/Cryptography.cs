@@ -101,7 +101,7 @@ public class Cryptography
         }
         catch (Exception e)
         {
-            //Console.WriteLine($"Error in RSA decrypting: {e.Message}", MessagesTypes.SysError);
+            //System.Console.WriteLine($"Error in RSA decrypting: {e.Message}");
         }
         
         return Array.Empty<byte>();
@@ -205,7 +205,7 @@ public class Cryptography
         }
         catch (Exception e)
         {
-            //Console.WriteLine($"Error in AES encryption: {e.Message}", MessagesTypes.SysError);
+            //System.Console.WriteLine($"Error in AES encryption: {e.Message}");
         }
         
         return (new byte[0], new byte[0]);
@@ -223,7 +223,7 @@ public class Cryptography
         {
             var nonce = secret.TakeLast(12).ToArray();
 
-            //var key = secret.Take(32).ToArray();
+            var key = secret.Take(32).ToArray();
 
             var tag = dataToDecrypt.Take(16).ToArray();
 
@@ -231,7 +231,7 @@ public class Cryptography
 
             var plainText = new byte[encrypted.Length];
 
-            using var aes = new AesGcm(_aesKey, 16);
+            using var aes = new AesGcm(key, 16);
 
             aes.Decrypt(nonce, encrypted, tag, plainText);
 
@@ -239,7 +239,7 @@ public class Cryptography
         }
         catch (Exception e)
         {
-            //Console.WriteLine($"Error in AES decryption: {e.Message}");
+            //System.Console.WriteLine($"Error in AES decryption: {e.Message}");
         }
         
         return new byte[0];

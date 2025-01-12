@@ -1,4 +1,6 @@
-﻿using static System.Console;
+﻿using Client.Menus;
+using Client.Models;
+using static System.Console;
 
 namespace Client;
 
@@ -11,6 +13,8 @@ public static class Console
     private static readonly object? ConsoleLock = new();
 
     private static readonly object? ListLock = new();
+    
+    private static ICommandsHandler? _commandsHandler;
 
     public static void MainSetup()
     {
@@ -76,6 +80,10 @@ public static class Console
             } while (key.Key != ConsoleKey.Enter);
             
             //what to do with command
+
+            if (_command != null) _commandsHandler!.HandleCommand(_command);
+
+            //add command handler from interface based on what async Task is now active in other classes
             
             _command = string.Empty;
             
@@ -94,10 +102,26 @@ public static class Console
         UpdateConsole();
     }
 
+    public static void Clear()
+    {
+        lock (ListLock!)
+        {
+            _lines!.Clear();
+        }
+        
+        UpdateConsole();
+    }
+
+
+    public static void SetCommandsHandler(ICommandsHandler commandsHandler)
+    {
+        _commandsHandler = commandsHandler;
+    }
+
     
     private static void UpdateConsole()
     {
-        Clear();
+        System.Console.Clear();
         
         var height = WindowHeight;
 

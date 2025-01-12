@@ -107,7 +107,7 @@ public static class Console
         try
         {
             await File.AppendAllTextAsync(Path.Combine(folderPath, (DateTime.Now.ToString("MM-dd") + fileName)),
-                "[" + DateTime.Now.ToString("HH:mm:ss") + "] " + typeMessage + ": " + message);
+                "[" + DateTime.Now.ToString("HH:mm:ss") + "] " + typeMessage + ": " + message + "\n");
         }
         catch (Exception e)
         {
@@ -133,7 +133,7 @@ public static class Console
         try
         {
             await File.AppendAllTextAsync(Path.Combine(folderPath, fileName),
-                "[" + DateTime.Now.ToString("MM/dd-HH:mm:ss") + "] " + typeMessage + ": " + message);
+                "[" + DateTime.Now.ToString("MM/dd-HH:mm:ss") + "] " + typeMessage + ": " + message + "\n");
         }
         catch (Exception e)
         {

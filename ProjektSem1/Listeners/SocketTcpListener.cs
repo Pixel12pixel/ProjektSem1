@@ -59,6 +59,8 @@ public class SocketTcpListener
                 {
                     var clientSocket = socketTask.Result;
                     
+                    Console.WriteLine($"New client connected from: {clientSocket.RemoteEndPoint}", MessagesTypes.SocInfo);
+                    
                     _ = HandleSocket(clientSocket);
                 }
                 else
@@ -88,21 +90,19 @@ public class SocketTcpListener
         
         
         // Auth
-        var auth = SocketAuth(socket); //TODO: check if it work without await
+        var auth = SocketAuth(socket);
 
         var user = auth.Result;
         
         _users.Add(user);
-
+        Console.WriteLine($"Client from: {user.Socket.RemoteEndPoint} is now known as: '{user.Username}'. Listener started.",
+            MessagesTypes.SocInfo);
         // send history
         await SendHistory(user);
         
 
         // Listener
         _ = Listener(user);
-        
-        Console.WriteLine($"Client from: {user.Socket} is now known as: '{user.Username}'. Listener started.",
-            MessagesTypes.SocInfo);
     }
 
     /// <summary>
@@ -124,7 +124,7 @@ public class SocketTcpListener
 
             if (_cts.IsCancellationRequested)
             {
-                return null!; //yyyyyyyyyyyy... ok
+                return null!;
             }
         
             var publicKey = new byte[receivedBytes];
@@ -156,7 +156,7 @@ public class SocketTcpListener
         }
         catch (Exception e)
         {
-            Console.WriteLine($"Error from: {socket.RemoteEndPoint}, in auth listener: {e.Message}");
+            Console.WriteLine($"Error from: {socket.RemoteEndPoint}, in auth listener: {e.Message}", MessagesTypes.SocError);
         }
 
         try
@@ -209,6 +209,9 @@ public class SocketTcpListener
                 };
             
                 await _jsonFiles.MessagesWrite(messageM);
+                
+                Console.WriteLine($"Message from: {user.Socket.RemoteEndPoint} - {user.Username}: {Encoding.UTF8.GetString(message)}",
+                    MessagesTypes.SocInfo);
                 
                 await SendMessages(user, Encoding.UTF8.GetString(message));
             }
@@ -293,11 +296,17 @@ public class SocketTcpListener
         var messages = _jsonFiles.MessagesReadAll();
 
         if (messagesCount == 0)
+        {
+            await user.Socket.SendAsync(_crypto.RsaEncrypt("0", user.PublicKey), SocketFlags.None);
+            
             return;
+        }
+
+        
 
         var history = new List<MessageModel>();
 
-        if (messages.Count < messagesCount)
+        if (messages.Count > messagesCount)
         {
             messages.CopyTo(history.ToArray(), messages.Count - messagesCount);
         }
@@ -322,6 +331,8 @@ public class SocketTcpListener
 
                 await user.Socket.SendAsync(secretEncrypt, SocketFlags.None);
 
+                await Task.Delay(50);
+                
                 await user.Socket.SendAsync(message, SocketFlags.None);
             }
         }

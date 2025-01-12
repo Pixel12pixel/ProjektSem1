@@ -223,7 +223,7 @@ public class Cryptography
         {
             var nonce = secret.TakeLast(12).ToArray();
 
-            //var key = secret.Take(32).ToArray();
+            var key = secret.Take(32).ToArray();
 
             var tag = dataToDecrypt.Take(16).ToArray();
 
@@ -231,7 +231,7 @@ public class Cryptography
 
             var plainText = new byte[encrypted.Length];
 
-            using var aes = new AesGcm(_aesKey, 16);
+            using var aes = new AesGcm(key, 16);
 
             aes.Decrypt(nonce, encrypted, tag, plainText);
 
