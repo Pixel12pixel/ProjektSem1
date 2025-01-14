@@ -10,6 +10,7 @@ public class MainMenuHandler : ICommandsHandler
         {
             var message = command[1..];
             
+            HandleCommands(message);
             
         }
         else
@@ -17,6 +18,11 @@ public class MainMenuHandler : ICommandsHandler
             //_ = _listener.SendMessage(message);
         }
         
+        
+    }
+    
+    private void HandleCommands(string command)
+    {
         
     }
 }

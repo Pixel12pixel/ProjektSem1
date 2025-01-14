@@ -191,6 +191,8 @@ public class SocketTcpListener
             {
                 var receivedBytes =  await user.Socket.ReceiveAsync(buffer, SocketFlags.None,
                     new CancellationToken());
+                
+                
             
                 var secret = _crypto.RsaDecrypt(buffer.Take(receivedBytes).ToArray());
             

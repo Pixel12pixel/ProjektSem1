@@ -64,11 +64,13 @@ public class ServerListener
         
         Console.SetCommandsHandler(_chatHandler);
         
-        Console.AddLine("test ok");
-
-        await Initialization2(key);
         
-        Console.AddLine("test ok2");
+
+        await Initialization(key);
+
+        Console.AddLine("[Connected to server]");
+        
+        _ = Listener(_cts);
     }
 
     private async Task<byte[]> Auth()
@@ -145,7 +147,9 @@ public class ServerListener
 
         var messagesList = Encoding.UTF8.GetString(messagesListBytes);
         
-        System.Console.Write(messagesList);
+        //System.Console.Write(messagesList);\
+        
+        Console.AddLine(messagesList);
     }
 
     private async Task Listener(CancellationTokenSource cts)
@@ -178,6 +182,16 @@ public class ServerListener
         catch (Exception e)
         {
             
+        }
+
+        try
+        {
+            await serverSocket.DisconnectAsync(true);
+        }
+        catch (Exception e)
+        {
+            System.Console.WriteLine(e);
+            throw;
         }
     }
     
