@@ -57,7 +57,7 @@ public class Cryptography
             //Console.WriteLine($"Error in RSA encryption: {e.Message}", MessagesTypes.SysError);
         }
         
-        return Array.Empty<byte>();
+        return [];
     }
     
     /// <summary>
@@ -81,7 +81,7 @@ public class Cryptography
             //Console.WriteLine($"Error in RSA encryption: {e.Message}", MessagesTypes.SysError);
         }
         
-        return Array.Empty<byte>();
+        return [];
     }
 
     /// <summary>
@@ -104,7 +104,7 @@ public class Cryptography
             System.Console.WriteLine($"Error in RSA decrypting: {e.Message}");
         }
         
-        return Array.Empty<byte>();
+        return [];
     }
 
     
@@ -167,7 +167,7 @@ public class Cryptography
             //Console.WriteLine($"Error in AES encryption: {e.Message}", MessagesTypes.SysError);
         }
         
-        return (new byte[0], new byte[0]);
+        return ([], []);
     }
     
     /// <summary>
@@ -208,7 +208,7 @@ public class Cryptography
             System.Console.WriteLine($"Error in AES encryption: {e.Message}");
         }
         
-        return (new byte[0], new byte[0]);
+        return ([], []);
     }
 
     /// <summary>

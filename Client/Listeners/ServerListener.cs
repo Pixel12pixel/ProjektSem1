@@ -66,7 +66,7 @@ public class ServerListener
         
         
 
-        await Initialization(key);
+        await Initialization2(key);
 
         Console.AddLine("[Connected to server]");
         
@@ -157,41 +157,40 @@ public class ServerListener
         const int bufferSize = 1024 * 4;
 
         var buffer = new byte[bufferSize];
-        
+
         try
         {
-            while (!cts.Token.IsCancellationRequested)
+            while (!cts.Token.IsCancellationRequested && serverSocket.Connected)
             {
                 var receivedBytes = await serverSocket.ReceiveAsync(buffer, SocketFlags.None, cts.Token);
-                
+
                 var secret = _crypto.RsaDecrypt(buffer.Take(receivedBytes).ToArray());
-                
+
                 Array.Clear(buffer);
-                
+
                 receivedBytes = await serverSocket.ReceiveAsync(buffer, SocketFlags.None, cts.Token);
-                
+
                 var messageBytes = _crypto.AesDecrypt(secret, buffer.Take(receivedBytes).ToArray());
-                
+
                 Array.Clear(buffer);
-                
+
                 var message = JsonSerializer.Deserialize<MessageModel>(Encoding.UTF8.GetString(messageBytes));
-                
+
                 Console.AddLine("(" + message!.Username + "): " + message.Message);
             }
         }
         catch (Exception e)
         {
-            
-        }
 
-        try
-        {
-            await serverSocket.DisconnectAsync(true);
         }
-        catch (Exception e)
+        finally
         {
-            System.Console.WriteLine(e);
-            throw;
+            if (serverSocket.Connected)
+            {
+                serverSocket.Shutdown(SocketShutdown.Both);
+                serverSocket.Close();
+                serverSocket.Dispose();
+            }
         }
     }
     
@@ -202,10 +201,20 @@ public class ServerListener
         var (secret, messageEnc) = _crypto.AesEncrypt(messageBytes);
         
         //TODO: max message size
+
+        try
+        {
+            await serverSocket.SendAsync(_crypto.RsaEncrypt(secret, serverPublicKey), SocketFlags.None);
         
-        await serverSocket.SendAsync(_crypto.RsaEncrypt(secret, serverPublicKey), SocketFlags.None);
+            await serverSocket.SendAsync(messageEnc, SocketFlags.None);
+        }
+        catch (Exception e)
+        {
+            System.Console.WriteLine(e);
+            throw;
+        }
         
-        await serverSocket.SendAsync(messageEnc, SocketFlags.None);
+        
         
     }
     
@@ -275,6 +284,6 @@ public class ServerListener
 
         var messagesList = Encoding.UTF8.GetString(messagesListBytes);
         
-        System.Console.Write(messagesList);
+        //Console.AddLine("(" + message!.Username + "): " + message.Message);
     }
 }

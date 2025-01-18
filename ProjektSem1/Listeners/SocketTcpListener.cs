@@ -187,7 +187,7 @@ public class SocketTcpListener
             // 1 - key and nonce [RSA]
             // 2 - tag and message [AES]
 
-            while (true)
+            while (user.Socket.Connected)
             {
                 var receivedBytes =  await user.Socket.ReceiveAsync(buffer, SocketFlags.None,
                     new CancellationToken());
