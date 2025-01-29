@@ -22,17 +22,23 @@ public class ServerListener
 
     private Socket serverSocket;
 
-    public ServerListener(ConfigModel config)
+    public ServerListener(ConfigModel config, Cryptography crypto)
     {
         _cts = new CancellationTokenSource();
-        
-        _crypto = new Cryptography(); //TODO: not here becouse of recreating object when connecting
+
+        _crypto = crypto;
         
         _config = config;
         
         _chatHandler = new ServerChatHandler(_cts, this);
     }
 
+    /// <summary>
+    /// Connect to server
+    /// </summary>
+    /// <param name="port">server port</param>
+    /// <param name="ip">server ip</param>
+    /// <returns>if connected</returns>
     public async Task<bool> Connect(int port, string ip)
     {
         var socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
@@ -53,6 +59,9 @@ public class ServerListener
         return true;
     }
 
+    /// <summary>
+    /// Handle new connection
+    /// </summary>
     private async Task HandleConnection()
     {
         // auth
@@ -64,15 +73,17 @@ public class ServerListener
         
         Console.SetCommandsHandler(_chatHandler);
         
-        
+        Console.AddLine("[Connected to server]");
 
         await Initialization(key);
-
-        Console.AddLine("[Connected to server]");
         
         _ = Listener(_cts);
     }
 
+    /// <summary>
+    /// Authenticate to server
+    /// </summary>
+    /// <returns></returns>
     private async Task<byte[]> Auth()
     {
         const int bufferSize = 1024 * 4;
@@ -103,6 +114,10 @@ public class ServerListener
         return key;
     }
 
+    /// <summary>
+    /// Initialization of the connection, receiving messages
+    /// </summary>
+    /// <param name="key"></param>
     private async Task Initialization(byte[] key)
     {
         const int bufferSize = 1024 * 4;
@@ -111,47 +126,77 @@ public class ServerListener
         
         
         // send init data
-        
-        await serverSocket.SendAsync(_crypto.RsaEncrypt(Encoding.UTF8.GetBytes(_config.InitMessages.ToString()), key), SocketFlags.None);
-        
-        
-        // receive init data count
-        
-        var receivedBytes = await serverSocket.ReceiveAsync(buffer, SocketFlags.None);
-        
-        var count = int.Parse(Encoding.UTF8.GetString(_crypto.RsaDecrypt(buffer.Take(receivedBytes).ToArray())));
 
-        Array.Clear(buffer);
-        
-        
-        // receive init data
-        // 1. RSA
-        // 2. AES
-
-        var messagesListBytes = new byte[1024 * 4 * count];
-        
-        for (var i = 0; i < count; i++)
+        try
         {
-            receivedBytes = await serverSocket.ReceiveAsync(buffer, SocketFlags.None);
-            
-            var secret = _crypto.RsaDecrypt(buffer.Take(receivedBytes).ToArray());
-            
-            Array.Clear(buffer);
-            
-            receivedBytes = await serverSocket.ReceiveAsync(buffer, SocketFlags.None);
-            
-            var message = _crypto.AesDecrypt(secret, buffer.Take(receivedBytes).ToArray());
-            
-            Array.Copy(message, 0, messagesListBytes, i * 1024 * 4, message.Length);
-        }
+            await serverSocket.SendAsync(_crypto.RsaEncrypt(Encoding.UTF8.GetBytes(_config.InitMessages.ToString()), key), SocketFlags.None);
+        
+        
+            // receive init data count
+        
+            var receivedBytes = await serverSocket.ReceiveAsync(buffer, SocketFlags.None);
+        
+            var count = int.Parse(Encoding.UTF8.GetString(_crypto.RsaDecrypt(buffer.Take(receivedBytes).ToArray())));
 
-        var messagesList = Encoding.UTF8.GetString(messagesListBytes);
+            Array.Clear(buffer);
         
-        //System.Console.Write(messagesList);\
         
-        Console.AddLine(messagesList);
+            // receive init data
+            // 1. RSA
+            // 2. AES
+
+            var messagesListBytes = new byte[1024 * 4 * (count - 1)];
+
+            byte[] messageListBytesLast = new byte[] { };
+        
+            for (var i = 0; i < count; i++)
+            {
+                receivedBytes = await serverSocket.ReceiveAsync(buffer, SocketFlags.None);
+            
+                var secret = _crypto.RsaDecrypt(buffer.Take(receivedBytes).ToArray());
+            
+                Array.Clear(buffer);
+            
+                receivedBytes = await serverSocket.ReceiveAsync(buffer, SocketFlags.None);
+            
+                var message = _crypto.AesDecrypt(secret, buffer.Take(receivedBytes).ToArray());
+
+                if (i == count - 1)
+                {
+                    messageListBytesLast = message;    
+                }
+                else
+                {
+                    Array.Copy(message, 0, messagesListBytes, i * 1024 * 4, message.Length);
+                }
+            }
+
+            var messagesBuffer = new byte[messagesListBytes.Length + messageListBytesLast.Length];
+        
+            Array.Copy(messagesListBytes, 0, messagesBuffer, 0, messagesListBytes.Length);
+        
+            Array.Copy(messageListBytesLast, 0, messagesBuffer, messagesListBytes.Length, messageListBytesLast.Length);
+        
+            var messagesList = Encoding.UTF8.GetString(messagesBuffer);
+            
+            var messages = JsonSerializer.Deserialize<List<MessageModel>>(messagesList);
+
+            if (messages != null)
+                foreach (var message in messages)
+                {
+                    Console.AddLine("(" + message.Username + "): " + message.Message);
+                }
+        }
+        catch (Exception e)
+        {
+            //System.Console.WriteLine(e);
+        }
     }
 
+    /// <summary>
+    /// Normal listener for incoming messages
+    /// </summary>
+    /// <param name="cts"></param>
     private async Task Listener(CancellationTokenSource cts)
     {
         const int bufferSize = 1024 * 4;
@@ -195,6 +240,10 @@ public class ServerListener
         }
     }
     
+    /// <summary>
+    /// send message to server
+    /// </summary>
+    /// <param name="message"></param>
     public async Task SendMessage(string message)
     {
         var messageBytes = Encoding.UTF8.GetBytes(message);
@@ -207,74 +256,5 @@ public class ServerListener
         
         await serverSocket.SendAsync(messageEnc, SocketFlags.None);
         
-    }
-    
-    private async Task Initialization2(byte[] key)
-    {
-        const int bufferSize = 1024 * 8;
-        
-        var buffer = new byte[bufferSize];
-        
-        
-        // send init data
-        
-        await serverSocket.SendAsync(_crypto.RsaEncrypt(Encoding.UTF8.GetBytes(_config.InitMessages.ToString()), key), SocketFlags.None);
-        
-        
-        // receive init data count
-        
-        var receivedBytes = await serverSocket.ReceiveAsync(buffer, SocketFlags.None);
-        
-        //
-        //
-        //
-
-        var test1 = _crypto.RsaDecrypt(buffer.Take(receivedBytes).ToArray());
-
-        var test2 = Encoding.UTF8.GetString(test1);
-        
-        System.Console.SetCursorPosition(0, 0);
-        
-        System.Console.WriteLine(test2);
-        
-        var count = int.Parse(test2);
-        
-        System.Console.WriteLine(count);
-
-        Array.Clear(buffer);
-        
-        
-        // receive init data
-        // 1. RSA
-        // 2. AES
-
-        var messagesListBytes = new byte[1024 * 4 * count];
-        
-        for (var i = 0; i < count; i++)
-        {
-            receivedBytes = await serverSocket.ReceiveAsync(buffer, SocketFlags.None);
-            
-            System.Console.WriteLine(receivedBytes);
-            
-            var secret = _crypto.RsaDecrypt(buffer.Take(receivedBytes).ToArray());
-            
-            System.Console.WriteLine("secret: " + secret.Length);
-            
-            Array.Clear(buffer);
-            
-            receivedBytes = await serverSocket.ReceiveAsync(buffer, SocketFlags.None);
-            
-            System.Console.WriteLine(receivedBytes);
-            
-            var message = _crypto.AesDecrypt(secret, buffer.Take(receivedBytes).ToArray());
-            
-            System.Console.WriteLine("message: " + message.Length);
-            
-            Array.Copy(message, 0, messagesListBytes, i * 1024 * 4, message.Length);
-        }
-
-        var messagesList = Encoding.UTF8.GetString(messagesListBytes);
-        
-        System.Console.Write(messagesList);
     }
 }

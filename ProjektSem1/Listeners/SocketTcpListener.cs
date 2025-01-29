@@ -42,6 +42,8 @@ public class SocketTcpListener
         
         var serverSocket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
         
+        serverSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+        
         serverSocket.Bind(new IPEndPoint(IPAddress.IPv6Any, _port));
         serverSocket.Listen(2);
         
@@ -187,18 +189,34 @@ public class SocketTcpListener
             // 1 - key and nonce [RSA]
             // 2 - tag and message [AES]
 
-            while (true)
+            while (!_cts.IsCancellationRequested)
             {
                 var receivedBytes =  await user.Socket.ReceiveAsync(buffer, SocketFlags.None,
                     new CancellationToken());
                 
-                
+                if (receivedBytes == 0)
+                {
+                    _users.Remove(user);
+                    
+                    Console.WriteLine($"Client from: {user.Socket.RemoteEndPoint} disconnected!", MessagesTypes.SocInfo);
+
+                    break;
+                }
             
                 var secret = _crypto.RsaDecrypt(buffer.Take(receivedBytes).ToArray());
             
                 Array.Clear(buffer);
             
                 receivedBytes = await user.Socket.ReceiveAsync(buffer, SocketFlags.None, new CancellationToken());
+                
+                if (receivedBytes == 0)
+                {
+                    _users.Remove(user);
+                    
+                    Console.WriteLine($"Client from: {user.Socket.RemoteEndPoint} disconnected!", MessagesTypes.SocInfo);
+
+                    break;
+                }
             
                 var message = _crypto.AesDecrypt(secret, buffer.Take(receivedBytes).ToArray());
                 
@@ -213,7 +231,7 @@ public class SocketTcpListener
                 await _jsonFiles.MessagesWrite(messageM);
                 
                 Console.WriteLine($"Message from: {user.Socket.RemoteEndPoint} - {user.Username}: {Encoding.UTF8.GetString(message)}",
-                    MessagesTypes.SocInfo);
+                    MessagesTypes.SocLog);
                 
                 await SendMessages(user, Encoding.UTF8.GetString(message));
             }
@@ -248,9 +266,6 @@ public class SocketTcpListener
         {
             try
             {
-                if (user == userSender)
-                    continue;
-                
                 var secEncrypt = _crypto.RsaEncrypt(secret, user.PublicKey);
                 
                 await user.Socket.SendAsync(secEncrypt, SocketFlags.None);
@@ -304,16 +319,10 @@ public class SocketTcpListener
             return;
         }
 
+
+        var history = messages.Count > messagesCount ? messages.GetRange(messages.Count - messagesCount, messagesCount) : messages;
+
         
-
-        var history = new List<MessageModel>();
-
-        if (messages.Count > messagesCount)
-        {
-            messages.CopyTo(history.ToArray(), messages.Count - messagesCount);
-        }
-
-        history = messages;
 
         var segments = ArraySegments(bufferSize, history);
 
@@ -369,6 +378,8 @@ public class SocketTcpListener
         {
             if (i + 1 == segmentsCount)
             {
+                segment = new byte[messageArray.Length];
+                
                 Array.Copy(messageArray, i * bufferSize, segment, 0,
                     (messageArray.Length - i * bufferSize));
 

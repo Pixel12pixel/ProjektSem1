@@ -81,6 +81,9 @@ public static class Console
         if (!File.Exists(fileName))
         {
             File.Create(fileName).Close();
+            
+            File.WriteAllText(fileName, "[{\"Username\":\"Admin\",\"Message\":\"Hello World\"}]");
+            
             WriteLine($"File '{fileName}' not detected, successfully created!", MessagesTypes.SysInfo);
         }
 
@@ -199,26 +202,3 @@ public enum MessagesTypes
     
     Def // default color
 }
-
-
-
-/*
-Console.ForegroundColor = messageType switch
-    {
-        MessagesTypes.SysInfo => ConsoleColor.Cyan,
-        MessagesTypes.SysWarning => ConsoleColor.Yellow,
-        MessagesTypes.SysError => ConsoleColor.Red,
-        MessagesTypes.SysDebug => ConsoleColor.Magenta,
-        MessagesTypes.SysLog => ConsoleColor.Gray,
-        MessagesTypes.SysFatal => ConsoleColor.DarkRed,
-        MessagesTypes.SysOk => ConsoleColor.Green,
-        MessagesTypes.SocInfo => ConsoleColor.Blue,
-        MessagesTypes.SocWarning => ConsoleColor.Yellow,
-        MessagesTypes.SocError => ConsoleColor.Red,
-        MessagesTypes.SocDebug => ConsoleColor.Magenta,
-        MessagesTypes.SocLog => ConsoleColor.Gray,
-        MessagesTypes.SocFatal => ConsoleColor.DarkRed,
-        MessagesTypes.SocOk => ConsoleColor.DarkGreen,
-        _ => ConsoleColor.White
-    };
-*/

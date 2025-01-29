@@ -16,6 +16,9 @@ public static class Console
     
     private static ICommandsHandler? _commandsHandler;
 
+    /// <summary>
+    /// Main console setup
+    /// </summary>
     public static void MainSetup()
     {
         lock (ListLock!)
@@ -30,6 +33,9 @@ public static class Console
         UpdateConsole();
     }
 
+    /// <summary>
+    /// Async Tasks for console
+    /// </summary>
     private static void ConsoleSetup()
     {
         Task.Run(ResizeTask);
@@ -37,6 +43,10 @@ public static class Console
         Task.Run(InputHandler);
     }
 
+    /// <summary>
+    /// Resize content in console
+    /// </summary>
+    /// <returns></returns>
     private static Task ResizeTask()
     {
         var lastHeight = -1;
@@ -57,6 +67,10 @@ public static class Console
         // ReSharper disable once FunctionNeverReturns
     }
 
+    /// <summary>
+    /// Handle input from user
+    /// </summary>
+    /// <returns></returns>
     private static Task InputHandler()
     {
         while (true)
@@ -66,17 +80,33 @@ public static class Console
             do
             {
                 key = ReadKey(true);
-                
-                if (key.Key != ConsoleKey.Enter)
-                {
-                    _command += key.KeyChar;
-                    
-                    lock (ConsoleLock!)
-                    {
-                        Write(key.KeyChar);
-                    }
-                }
 
+                switch (key.Key)
+                {
+                    case ConsoleKey.Backspace:
+                        if (_command!.Length > 0)
+                        {
+                            _command = _command.Remove(_command.Length - 1);
+                            
+                            lock (ConsoleLock!)
+                            {
+                                SetCursorPosition(CursorLeft - 1, CursorTop);
+                                Write(" ");
+                                SetCursorPosition(CursorLeft - 1, CursorTop);
+                            }
+                        }
+                        break;
+                    case ConsoleKey.Enter:
+                        break;
+                    default:
+                        _command += key.KeyChar;
+                    
+                        lock (ConsoleLock!)
+                        {
+                            Write(key.KeyChar);
+                        }
+                        break;
+                }
             } while (key.Key != ConsoleKey.Enter);
             
             //what to do with command
@@ -92,6 +122,11 @@ public static class Console
         // ReSharper disable once FunctionNeverReturns
     }
 
+    
+    /// <summary>
+    /// Add new line to console
+    /// </summary>
+    /// <param name="line">string line to add</param>
     public static void AddLine(string line)
     {
         lock (ListLock!)
@@ -102,6 +137,10 @@ public static class Console
         UpdateConsole();
     }
 
+    
+    /// <summary>
+    /// clear all lines from console
+    /// </summary>
     public static void Clear()
     {
         lock (ListLock!)
@@ -113,12 +152,22 @@ public static class Console
     }
 
 
+    /// <summary>
+    /// Set new command handler from interface
+    /// </summary>
+    /// <param name="commandsHandler">Command Handler</param>
     public static void SetCommandsHandler(ICommandsHandler commandsHandler)
     {
+        Clear();
+        
         _commandsHandler = commandsHandler;
+        
+        _commandsHandler.Setup();
     }
 
-    
+    /// <summary>
+    /// Update console content
+    /// </summary>
     private static void UpdateConsole()
     {
         System.Console.Clear();
@@ -144,7 +193,7 @@ public static class Console
                         WriteLine("");
                     }
                 }
-                
+                //working only on windows
 #pragma warning disable CA1416
                 BufferHeight = height;
 #pragma warning restore CA1416

@@ -6,7 +6,5 @@ public class ConfigModel
     
     public int InitMessages { get; set; }
 
-    public List<ServerModel> Servers { get; set; } = [];
-
     public bool IsSet { get; set; } = false;
 }

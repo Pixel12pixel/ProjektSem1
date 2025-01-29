@@ -5,8 +5,6 @@ namespace ProjektSem1;
 
 public class Cryptography
 {
-    //to regenerate keys create new instance of this object
-    
     private readonly byte[] _rsaPublicKey;
     
     private readonly byte[] _rsaPrivateKey;

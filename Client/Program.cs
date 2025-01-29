@@ -6,26 +6,31 @@ namespace Client;
 
 internal class Program
 {
+    internal Program()
+    {
+        MainSetup();
+    }
+
+    private static ConfigModel _config;
+
+    private static Cryptography _crypto;
+    
     static void Main()
     {
-        MainMenuHandler mainMenu = new MainMenuHandler();
-        
         Console.MainSetup();
-
-        Console.SetCommandsHandler(mainMenu);
         
-        ConfigModel config = new ConfigModel();
-        config.IsSet = true;
-        config.Username = "test";
-        config.InitMessages = 10;
+        Console.SetCommandsHandler(new LoadingHandler());
         
-        ServerListener listener = new ServerListener(config);
-
-        listener.Connect(1234, "::1");
+        _crypto = new Cryptography();
+        
+        MainSetup();
         
         Task.Delay(-1).Wait();
     }
 
+    /// <summary>
+    /// setup main functions of the program
+    /// </summary>
     private static void MainSetup()
     {
         var jsonFiles = new JsonFiles();
@@ -34,15 +39,23 @@ internal class Program
 
         if (config.IsSet == false)
         {
-            
+            Console.SetCommandsHandler(new ConfigHandler(config, jsonFiles));
         }
         else
         {
+            _config = config;
             
+            Console.SetCommandsHandler(new MainMenuHandler());
         }
     }
     
     
-    
-    
+    /// <summary>
+    /// get cryptography instance
+    /// </summary>
+    /// <returns>Cryptography object</returns>
+    public static Cryptography GetCrypto()
+    {
+        return _crypto;
+    }
 }

@@ -4,6 +4,11 @@ using Client.Models;
 
 namespace Client.Menus;
 
+/// <summary>
+/// Menu for server chat
+/// </summary>
+/// <param name="cts">Cancellation Token</param>
+/// <param name="listener">Listener object</param>
 public class ServerChatHandler(CancellationTokenSource cts, ServerListener listener) : ICommandsHandler
 {
     public void HandleCommand(string command)
@@ -22,15 +27,25 @@ public class ServerChatHandler(CancellationTokenSource cts, ServerListener liste
         
     }
     
+    public void Setup()
+    {
+        
+    }
+    
     private void HandleSystemCommand(string command)
     {
         switch (command)
         {
-            case "exit":
+            case "quit":
                 cts.Cancel();
+                Console.SetCommandsHandler(new MainMenuHandler());
                 break;
-            case "clear":
-                Console.Clear();
+            case "back":
+                cts.Cancel();
+                Console.SetCommandsHandler(new MainMenuHandler());
+                break;
+            case "exit":
+                Environment.Exit(0);
                 break;
         }
     }
