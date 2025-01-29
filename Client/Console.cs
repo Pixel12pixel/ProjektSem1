@@ -117,7 +117,7 @@ public static class Console
             
             _command = string.Empty;
             
-            UpdateConsole();
+            //UpdateConsole();
         }
         // ReSharper disable once FunctionNeverReturns
     }
